@@ -13,5 +13,4 @@ spring:
     generate-ddl: false
     properties:
       hibernate:
-        dialect: xor.bcmc.flarecloud.objectsstore.postgres.dialect.JsonbDialect
         temp.use_jdbc_metadata_defaults: false
