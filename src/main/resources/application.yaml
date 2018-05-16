@@ -1,0 +1,17 @@
+server.port: 8000
+
+spring:
+  datasource:
+    url: jdbc:postgresql://water.cgaoenw20n4t.us-east-1.rds.amazonaws.com/water
+    username: wind
+    password: ${POSTGRES_PASS}
+    dbcp2:
+      driver-class-name: org.postgresql.Driver
+    platform: postgres
+
+  jpa:
+    generate-ddl: false
+    properties:
+      hibernate:
+        dialect: xor.bcmc.flarecloud.objectsstore.postgres.dialect.JsonbDialect
+        temp.use_jdbc_metadata_defaults: false
