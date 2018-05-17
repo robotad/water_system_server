@@ -25,6 +25,10 @@ public class Record {
 
     public Record() {}
 
+    public Record(JsonObject data) {
+        this.data = data;
+    }
+
     public Long get_id() {
         return _id;
     }
