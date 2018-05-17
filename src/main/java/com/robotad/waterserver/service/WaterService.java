@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 
 @org.springframework.stereotype.Service
 public class WaterService {
-    private static final int DISPLAY_LENGTH = 10;
+    private static final int DISPLAY_LENGTH = 20;
     private RecordRepository recordRepository;
 
     @Autowired

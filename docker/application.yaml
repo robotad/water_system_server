@@ -2,7 +2,7 @@ server.port: 8000
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/water
+    url: jdbc:postgresql://water.cgaoenw20n4t.us-east-1.rds.amazonaws.com:5432/water
     username: wind
     password: ${POSTGRES_PASS}
     dbcp2:
