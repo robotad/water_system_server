@@ -1,4 +1,11 @@
-server.port: 8000
+server:
+  port: 8000
+  ssl:
+    trust-store: ca_ks.jks
+    trust-store-password: 12qwaszx@#WESDXC
+    key-store: server_ks.jks
+    key-store-password: 12qwaszx@#WESDXC
+    key-alias: server
 
 spring:
   datasource:
