@@ -9,6 +9,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "records")
@@ -22,6 +23,9 @@ public class Record {
     @Expose
     @Type(type = "JsonbType")
     private JsonObject data;
+
+    @Expose
+    private Timestamp timestamp;
 
     public Record() {}
 
@@ -39,6 +43,10 @@ public class Record {
 
     public JsonObject getData() {
         return this.data;
+    }
+
+    public Timestamp getTimestamp() {
+        return this.timestamp;
     }
 
     @Override

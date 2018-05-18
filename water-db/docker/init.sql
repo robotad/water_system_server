@@ -3,5 +3,6 @@ CREATE DATABASE water;
 
 CREATE TABLE records (
   _id BIGSERIAL PRIMARY KEY,
-  data JSONB
+  data JSONB,
+  timestamp TIMESTAMP default current_timestamp
 );
