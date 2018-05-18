@@ -10,6 +10,7 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "records")
@@ -31,6 +32,7 @@ public class Record {
 
     public Record(JsonObject data) {
         this.data = data;
+        this.timestamp = Timestamp.from(Instant.now());
     }
 
     public Long get_id() {
