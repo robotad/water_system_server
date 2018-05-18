@@ -49,8 +49,10 @@ public class WaterService {
         Page<Record> records = recordRepository.findAll(pageable);
 
         StringBuilder displayMoisture1 = new StringBuilder();
+        displayMoisture1.append(IntStream.range(0, 100).mapToObj(i -> "=").collect(Collectors.joining("")))
+                .append("\n");
         for (Record record : records) {
-            int moisture1 = record.getData().get("moisture1").getAsNumber().intValue();
+            int moisture1 = record.getData().get("moisture1").getAsNumber().intValue() + 1;
             String state = record.getData().get("state").getAsString();
             String displayStr = state.equals("WATERING")? "#" : "-";
 
