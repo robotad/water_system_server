@@ -6,6 +6,7 @@ server:
     key-store: src/main/resources/server_ks.jks
     key-store-password: 12qwaszx@#WESDXC
     key-alias: server
+    client-auth: need
 
 spring:
   datasource:
