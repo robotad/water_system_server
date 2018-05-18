@@ -53,12 +53,12 @@ public class WaterService {
             String displayStr = state.equals("WATERING")? "#" : "=";
 
             if (record.getTimestamp() != null)
-                displayMoisture1.append(String.format("%1$23s", record.getTimestamp().toString()));
+                displayMoisture1.append(String.format("%-23s", record.getTimestamp().toString()));
 
             displayMoisture1
                     .append("[")
                     .append(IntStream.range(0, moisture1/2).mapToObj(i -> displayStr).collect(Collectors.joining("")))
-                    .append(IntStream.range(0, (100 - moisture1)/2).mapToObj(i -> "-").collect(Collectors.joining("")))
+                    .append(IntStream.range(0, (50 - (moisture1/2))).mapToObj(i -> "-").collect(Collectors.joining("")))
                     .append("]")
                     .append(moisture1)
                     .append("\n");
