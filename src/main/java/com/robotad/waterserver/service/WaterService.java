@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import java.awt.print.Pageable;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -58,7 +56,7 @@ public class WaterService {
 
             if (record.getTimestamp() != null)
                 displayMoisture1.append(record.getTimestamp().toString());
-                
+
             displayMoisture1
                     .append("||")
                     .append(IntStream.range(0, moisture1).mapToObj(i -> displayStr).collect(Collectors.joining("")))
