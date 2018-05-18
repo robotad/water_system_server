@@ -31,6 +31,8 @@ public class Controller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity receive(@RequestBody String data){
         Record record = waterService.createRecord(data);
+        if (record == null)
+            return ResponseEntity.unprocessableEntity().build();
         return ResponseEntity.ok(record.toString());
     }
 }

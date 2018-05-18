@@ -7,7 +7,7 @@ server:
     key-store-password: 12qwaszx@#WESDXC
     key-alias: server
     client-auth: need
-    
+
 spring:
   datasource:
     url: jdbc:postgresql://water.cgaoenw20n4t.us-east-1.rds.amazonaws.com:5432/water
