@@ -52,15 +52,16 @@ public class WaterService {
         for (Record record : records) {
             int moisture1 = record.getData().get("moisture1").getAsNumber().intValue() + 1;
             String state = record.getData().get("state").getAsString();
-            String displayStr = state.equals("WATERING")? "#" : "-";
+            String displayStr = state.equals("WATERING")? "#" : "=";
 
             if (record.getTimestamp() != null)
                 displayMoisture1.append(record.getTimestamp().toString());
 
             displayMoisture1
-                    .append("||")
+                    .append("[")
                     .append(IntStream.range(0, moisture1).mapToObj(i -> displayStr).collect(Collectors.joining("")))
-                    .append("\n");
+                    .append(IntStream.range(0, (100 - moisture1)).mapToObj(i -> "-").collect(Collectors.joining("")))
+                    .append("]\n");
         }
         return displayMoisture1.toString();
     }
