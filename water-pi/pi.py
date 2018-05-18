@@ -18,9 +18,9 @@ while True:
             req = requests.post("https://18.206.145.189:8000", json=ser_json, cert=("pi.crt", "pi.key"), verify="ca.crt")
             sys.stdout.write('Response(%s): %s\n' % (req.status_code, req.text))
         except:
-            sys.stderr.write('Error: could not send serial data to server!') 
+            sys.stderr.write('Error: could not send serial data to server!\n') 
     except:
-        sys.stderr.write('Error: serial in is not json!')
+        sys.stderr.write('Error: serial in is not json!\n')
         
         
         
