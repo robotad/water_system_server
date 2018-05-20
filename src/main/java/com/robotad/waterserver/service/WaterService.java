@@ -62,7 +62,8 @@ public class WaterService {
         Page<Record> records = recordRepository.findAll(pageable);
 
         StringBuilder displayMoisture = new StringBuilder();
-        displayMoisture.append(moistureJsonKey);
+        displayMoisture.append(moistureJsonKey)
+            .append("\n");
         for (Record record : records) {
             if (record.getData().get(moistureJsonKey) != null) {
                 int moisture1 = record.getData().get(moistureJsonKey).getAsNumber().intValue() + 1;
