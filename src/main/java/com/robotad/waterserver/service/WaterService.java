@@ -64,20 +64,22 @@ public class WaterService {
         StringBuilder displayMoisture = new StringBuilder();
         displayMoisture.append(moistureJsonKey);
         for (Record record : records) {
-            int moisture1 = record.getData().get(moistureJsonKey).getAsNumber().intValue() + 1;
-            String state = record.getData().get("state").getAsString();
-            String displayStr = state.equals("WATERING")? "#" : "=";
+            if (record.getData().get(moistureJsonKey) != null) {
+                int moisture1 = record.getData().get(moistureJsonKey).getAsNumber().intValue() + 1;
+                String state = record.getData().get("state").getAsString();
+                String displayStr = state.equals("WATERING")? "#" : "=";
 
-            if (record.getTimestamp() != null)
-                displayMoisture.append(String.format("%-23s", record.getTimestamp().toString()));
+                if (record.getTimestamp() != null)
+                    displayMoisture.append(String.format("%-23s", record.getTimestamp().toString()));
 
-            displayMoisture
-                    .append("[")
-                    .append(IntStream.range(0, moisture1/2).mapToObj(i -> displayStr).collect(Collectors.joining("")))
-                    .append(IntStream.range(0, (50 - (moisture1/2))).mapToObj(i -> "-").collect(Collectors.joining("")))
-                    .append("]")
-                    .append(moisture1)
-                    .append("\n");
+                displayMoisture
+                        .append("[")
+                        .append(IntStream.range(0, moisture1/2).mapToObj(i -> displayStr).collect(Collectors.joining("")))
+                        .append(IntStream.range(0, (50 - (moisture1/2))).mapToObj(i -> "-").collect(Collectors.joining("")))
+                        .append("]")
+                        .append(moisture1)
+                        .append("\n");
+            }
         }
         return displayMoisture.toString();
     }
