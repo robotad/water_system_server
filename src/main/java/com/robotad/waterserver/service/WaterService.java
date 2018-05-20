@@ -31,6 +31,9 @@ public class WaterService {
             addPropertyIfExists(source, target, "timestamp");
             addPropertyIfExists(source, target, "state");
             addPropertyIfExists(source, target, "moisture1");
+            addPropertyIfExists(source, target, "moisture2");
+            addPropertyIfExists(source, target, "moisture3");
+            addPropertyIfExists(source, target, "moisture4");
             addPropertyIfExists(source, target, "water_flow");
             addPropertyIfExists(source, target, "water_fail_reps");
             addPropertyIfExists(source, target, "water_fail_sets");
@@ -42,20 +45,33 @@ public class WaterService {
     }
 
     public String getDisplay() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getDisplayForMoistureKey("moisture1"))
+                .append("\n\n")
+                .append(getDisplayForMoistureKey("moisture2"))
+                .append("\n\n")
+                .append(getDisplayForMoistureKey("moisture3"))
+                .append("\n\n")
+                .append(getDisplayForMoistureKey("moisture4"));
+        return sb.toString();
+    }
+
+    public String getDisplayForMoistureKey(String moistureJsonKey) {
         org.springframework.data.domain.Pageable pageable =
                 PageRequest.of(0, DISPLAY_LENGTH, Sort.by(Sort.Direction.DESC, "_id"));
         Page<Record> records = recordRepository.findAll(pageable);
 
-        StringBuilder displayMoisture1 = new StringBuilder();
+        StringBuilder displayMoisture = new StringBuilder();
+        displayMoisture.append(moistureJsonKey);
         for (Record record : records) {
-            int moisture1 = record.getData().get("moisture1").getAsNumber().intValue() + 1;
+            int moisture1 = record.getData().get(moistureJsonKey).getAsNumber().intValue() + 1;
             String state = record.getData().get("state").getAsString();
             String displayStr = state.equals("WATERING")? "#" : "=";
 
             if (record.getTimestamp() != null)
-                displayMoisture1.append(String.format("%-23s", record.getTimestamp().toString()));
+                displayMoisture.append(String.format("%-23s", record.getTimestamp().toString()));
 
-            displayMoisture1
+            displayMoisture
                     .append("[")
                     .append(IntStream.range(0, moisture1/2).mapToObj(i -> displayStr).collect(Collectors.joining("")))
                     .append(IntStream.range(0, (50 - (moisture1/2))).mapToObj(i -> "-").collect(Collectors.joining("")))
@@ -63,7 +79,7 @@ public class WaterService {
                     .append(moisture1)
                     .append("\n");
         }
-        return displayMoisture1.toString();
+        return displayMoisture.toString();
     }
 
     private void addPropertyIfExists(JsonObject source, JsonObject target, String property){
