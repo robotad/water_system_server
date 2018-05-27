@@ -7,15 +7,12 @@ import sys
 from time import sleep
 
 
-ready = False
-while not ready:
+while True:
     try:
-        ser = serial.Serial('/dev/ttyACM0', 9600, 8, 'N', timeout=5)
-        ready = True
+	ser = serial.Serial('/dev/ttyACM0', 9600, 8, 'N', timeout=5)
+        break
     except:
-        sys.stderr.write('Arduino is not ready!\n')
-        sleep(10)
-
+        sys.stderr.write('Error: Arduino is not ready or not in sudo')
  
 while True:
     ser_data = ser.readline()
