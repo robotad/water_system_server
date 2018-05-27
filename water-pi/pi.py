@@ -4,10 +4,19 @@ import json
 import requests
 import serial
 import sys
+from time import sleep
 
 
-ser = serial.Serial('/dev/ttyACM0', 9600, 8, 'N', timeout=5)
+ready = False
+while not ready:
+    try:
+        ser = serial.Serial('/dev/ttyACM0', 9600, 8, 'N', timeout=5)
+        ready = True
+    except:
+        sys.stderr.write('Arduino is not ready!\n')
+        sleep(10)
 
+ 
 while True:
     ser_data = ser.readline()
     print('Serial in: %s' % (ser_data))
