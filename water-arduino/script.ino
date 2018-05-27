@@ -2,11 +2,13 @@
 #include <string.h>
 
 #define WATERPUMP_RELAY_PIN   4
-#define WATERFLOW_PIN         3
 #define MOISTURE_SENSOR_PIN1  0
+#define MOISTURE_SENSOR_PIN2  1
+#define MOISTURE_SENSOR_PIN3  2
+#define MOISTURE_SENSOR_PIN4  3
 
-#define STANDBY_DELAY         600000
-#define WATERING_DELAY        20000
+#define STANDBY_DELAY         1800000
+#define WATERING_DELAY        600000
 
 enum State {
   STANDBY = 0,
@@ -16,7 +18,7 @@ typedef enum State Systemstate;
 Systemstate CurrentSystemState;
 
 float DRY_LIMIT = 10;
-char MESSAGE[100];
+float MOISTURE_DIFF_THRESHOLD = 2;
 
 int WATER_FAIL_SETS = 0;
 int WATER_FAIL_REPS = 0;
@@ -25,41 +27,63 @@ boolean WATER_FAIL_TIMEOUT = false;
 int WATER_FAIL_TIMEOUT_REPS = 0;
 int WATER_FAIL_TIMEOUT_REP_MAX = 6;
 
-char TIMESTAMP[20];
 
 void setup() {
 
   Serial.begin(9600); 
   
-  pinMode(WATERFLOW_PIN, INPUT);
   pinMode(MOISTURE_SENSOR_PIN1, INPUT);
+  pinMode(MOISTURE_SENSOR_PIN2, INPUT);
+  pinMode(MOISTURE_SENSOR_PIN3, INPUT);
+  pinMode(MOISTURE_SENSOR_PIN4, INPUT);
   pinMode(WATERPUMP_RELAY_PIN, OUTPUT);
 
   CurrentSystemState = STANDBY;
 }
 
+float MOISTURE1 = 100.0;
+float MOISTURE2 = 100.0;
+float MOISTURE3 = 100.0;
+float MOISTURE4 = 100.0;
+
 void loop() {
-  float moisture1 = 100;
+  float prevMoisture1 = MOISTURE1;
+  float prevMoisture2 = MOISTURE2;
+  float prevMoisture3 = MOISTURE3;
+  float prevMoisture4 = MOISTURE4;
+      
+  char MESSAGE[200];
+  char TIMESTAMP[20];
+  
   int waterIsFlowing = false;
   
-  memset(MESSAGE, '\0', sizeof(MESSAGE));
+  memset(MESSAGE, 0, sizeof(MESSAGE));
   strcat(MESSAGE, "{");
 
-  memset(TIMESTAMP, '\0', sizeof(TIMESTAMP));
+  memset(TIMESTAMP, 0, sizeof(TIMESTAMP));
   ultoa(millis(), TIMESTAMP, 10);
-  makeMessageEntry("timestamp", TIMESTAMP);    
+  makeMessageEntry(MESSAGE, "timestamp", TIMESTAMP);    
     
   switch (CurrentSystemState) {
     case STANDBY:
-      makeMessageEntry("state", "STANDBY");
+      makeMessageEntry(MESSAGE, "state", "STANDBY");
 
-      moisture1 = correct(analogRead(MOISTURE_SENSOR_PIN1));
-      makeMessageEntry("moisture1", moisture1);
+      MOISTURE1 = correct(analogRead(MOISTURE_SENSOR_PIN1));
+      makeMessageEntry(MESSAGE, "moisture1", MOISTURE1);
 
-      makeMessageEntry("water_fail_reps", WATER_FAIL_REPS); 
-      makeMessageEntry("water_fail_sets", WATER_FAIL_SETS);
+      MOISTURE2 = correct(analogRead(MOISTURE_SENSOR_PIN2));
+      makeMessageEntry(MESSAGE, "moisture2", MOISTURE2);
+
+      MOISTURE3 = correct(analogRead(MOISTURE_SENSOR_PIN3));
+      makeMessageEntry(MESSAGE, "moisture3", MOISTURE3);
+
+      MOISTURE4 = correct(analogRead(MOISTURE_SENSOR_PIN4));
+      makeMessageEntry(MESSAGE, "moisture4", MOISTURE4);
       
-      if(moisture1 < DRY_LIMIT){
+      makeMessageEntry(MESSAGE, "water_fail_reps", WATER_FAIL_REPS); 
+      makeMessageEntry(MESSAGE, "water_fail_sets", WATER_FAIL_SETS);
+      
+      if(MOISTURE1 < DRY_LIMIT || MOISTURE2 < DRY_LIMIT || MOISTURE3 < DRY_LIMIT || MOISTURE4 < DRY_LIMIT){
         if (!WATER_FAIL_TIMEOUT) {
           beginWatering();
           break;
@@ -78,13 +102,26 @@ void loop() {
 
    
     case WATERING:
-      makeMessageEntry("state", "WATERING");
-      
-      moisture1 = correct(analogRead(MOISTURE_SENSOR_PIN1));
-      makeMessageEntry("moisture1", moisture1);
+      makeMessageEntry(MESSAGE, "state", "WATERING");
 
-      waterIsFlowing = digitalRead(WATERFLOW_PIN);
-      makeMessageEntry("water_flow", waterIsFlowing);
+      MOISTURE1 = correct(analogRead(MOISTURE_SENSOR_PIN1));
+      makeMessageEntry(MESSAGE, "moisture1", MOISTURE1);
+
+      MOISTURE2 = correct(analogRead(MOISTURE_SENSOR_PIN2));
+      makeMessageEntry(MESSAGE, "moisture2", MOISTURE2);
+
+      MOISTURE3 = correct(analogRead(MOISTURE_SENSOR_PIN3));
+      makeMessageEntry(MESSAGE, "moisture3", MOISTURE3);
+
+      MOISTURE4 = correct(analogRead(MOISTURE_SENSOR_PIN4));
+      makeMessageEntry(MESSAGE, "moisture4", MOISTURE4);
+
+      if(abs(prevMoisture1 - MOISTURE1) < MOISTURE_DIFF_THRESHOLD &&
+        abs(prevMoisture2 - MOISTURE2) < MOISTURE_DIFF_THRESHOLD &&
+        abs(prevMoisture3 - MOISTURE3) < MOISTURE_DIFF_THRESHOLD &&
+        abs(prevMoisture4 - MOISTURE4) < MOISTURE_DIFF_THRESHOLD){
+          waterIsFlowing = false;
+      }
 
       if(!waterIsFlowing){
         WATER_FAIL_REPS++;
@@ -94,12 +131,12 @@ void loop() {
           WATER_FAIL_SETS++;
         }
       }
-      makeMessageEntry("water_fail_reps", WATER_FAIL_REPS);
-      makeMessageEntry("water_fail_sets", WATER_FAIL_SETS);
+      makeMessageEntry(MESSAGE, "water_fail_reps", WATER_FAIL_REPS);
+      makeMessageEntry(MESSAGE, "water_fail_sets", WATER_FAIL_SETS);
  
       delay(WATERING_DELAY);
 
-      if(moisture1 > DRY_LIMIT || !waterIsFlowing){
+      if(MOISTURE1 > DRY_LIMIT || MOISTURE2 > DRY_LIMIT || MOISTURE3 > DRY_LIMIT || MOISTURE4 > DRY_LIMIT || !waterIsFlowing){
         stopWatering(); 
         break;
       }
@@ -115,52 +152,52 @@ void loop() {
   Serial.println(MESSAGE);
 }
 
-void makeMessageEntry(char str[], char str2[]) {
-  if(strlen(MESSAGE) > 1){
-    strcat(MESSAGE, ",");
+void makeMessageEntry(char message[], char str[], char str2[]) {
+  if(strlen(message) > 1){
+    strcat(message, ",");
   }
   
-  strcat(MESSAGE, "\"");
-  strcat(MESSAGE, str);
-  strcat(MESSAGE, "\":\"");
-  strcat(MESSAGE, str2);
-  strcat(MESSAGE, "\"");
+  strcat(message, "\"");
+  strcat(message, str);
+  strcat(message, "\":\"");
+  strcat(message, str2);
+  strcat(message, "\"");
 }
 
-void makeMessageEntry(char str[], float number) {
+void makeMessageEntry(char message[], char str[], float number) {
   char numberString[5];
 
-  if(strlen(MESSAGE) > 1){
-    strcat(MESSAGE, ",");
+  if(strlen(message) > 1){
+    strcat(message, ",");
   }
   
   memset(numberString, '\0', sizeof(numberString));
 
-  strcat(MESSAGE, "\"");
-  strcat(MESSAGE, str);
-  strcat(MESSAGE, "\":\"");
+  strcat(message, "\"");
+  strcat(message, str);
+  strcat(message, "\":\"");
   
   ftoa(number, numberString, 2);
-  strcat(MESSAGE, numberString);
-  strcat(MESSAGE, "\"");
+  strcat(message, numberString);
+  strcat(message, "\"");
 }
 
-void makeMessageEntry(char str[], int number) {
+void makeMessageEntry(char message[], char str[], int number) {
   char numberString[5];
 
-  if(strlen(MESSAGE) > 1){
-    strcat(MESSAGE, ",");
+  if(strlen(message) > 1){
+    strcat(message, ",");
   }
   
   memset(numberString, '\0', sizeof(numberString));
 
-  strcat(MESSAGE, "\"");
-  strcat(MESSAGE, str);
-  strcat(MESSAGE, "\":\"");
+  strcat(message, "\"");
+  strcat(message, str);
+  strcat(message, "\":\"");
   
   itoa(number, numberString, 10);
-  strcat(MESSAGE, numberString);
-  strcat(MESSAGE, "\"");
+  strcat(message, numberString);
+  strcat(message, "\"");
 }
 
 void beginWatering(){
