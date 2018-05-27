@@ -9,6 +9,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "records")
@@ -23,10 +25,14 @@ public class Record {
     @Type(type = "JsonbType")
     private JsonObject data;
 
+    @Expose
+    private Timestamp timestamp;
+
     public Record() {}
 
     public Record(JsonObject data) {
         this.data = data;
+        this.timestamp = Timestamp.from(Instant.now());
     }
 
     public Long get_id() {
@@ -39,6 +45,10 @@ public class Record {
 
     public JsonObject getData() {
         return this.data;
+    }
+
+    public Timestamp getTimestamp() {
+        return this.timestamp;
     }
 
     @Override
